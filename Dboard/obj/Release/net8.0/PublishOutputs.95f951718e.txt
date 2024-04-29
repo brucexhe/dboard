@@ -1,0 +1,9 @@
+D:\Projects\Dboard\Dboard\obj\Docker\publish\Dboard.exe
+D:\Projects\Dboard\Dboard\obj\Docker\publish\appsettings.Development.json
+D:\Projects\Dboard\Dboard\obj\Docker\publish\appsettings.json
+D:\Projects\Dboard\Dboard\obj\Docker\publish\Dboard.dll
+D:\Projects\Dboard\Dboard\obj\Docker\publish\Dboard.deps.json
+D:\Projects\Dboard\Dboard\obj\Docker\publish\Dboard.runtimeconfig.json
+D:\Projects\Dboard\Dboard\obj\Docker\publish\Dboard.pdb
+D:\Projects\Dboard\Dboard\obj\Docker\publish\Docker.DotNet.dll
+D:\Projects\Dboard\Dboard\obj\Docker\publish\Newtonsoft.Json.dll

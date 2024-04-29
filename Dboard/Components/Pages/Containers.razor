@@ -1,0 +1,185 @@
+﻿@page "/containers"
+@rendermode InteractiveServer
+@using Docker.DotNet
+@using Docker.DotNet.Models
+@using System.Diagnostics
+@using System.Runtime.InteropServices
+@inject ILog log
+
+@inject IMessageService message;
+
+@inject Services.DockerService dockerService;
+
+
+<h3>Containers</h3>
+
+@if (containers == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <Table TItem="ContainerListResponse" DataSource="@containers">
+        <TitleTemplate>
+            <GridRow Gutter="10">
+                <GridCol Span="3">
+                    <Input @bind-Value="searchKey" Placeholder="搜索关键字" OnSearch="onSearch" />
+                </GridCol>
+                <GridCol>
+                    <Button Type="primary">查询</Button>
+                </GridCol>
+                <GridCol>
+                    <Button Type="primary">新增</Button>
+                </GridCol>
+            </GridRow>
+        </TitleTemplate>
+
+        <ChildContent>
+            <PropertyColumn Title="Name" Property="c=>c.Names">
+                <a href="/containers/@context.ID">@context.Names.FirstOrDefault().Substring(1)</a>
+            </PropertyColumn>
+            <PropertyColumn Title="Image" Property="c=>c.Image">
+                @context.Image.Split(":").FirstOrDefault().Substring(1)
+            </PropertyColumn>
+            <PropertyColumn Title="Tag" Property="c=>c.Image">
+                @(context.Image.Contains(":") ? context.Image.Split(":").LastOrDefault() : "latest")
+            </PropertyColumn>
+            <PropertyColumn Title="Created" Property="c=>c.Created">
+                @context.Created
+            </PropertyColumn>
+            <PropertyColumn Title="State" Property="c=>c.State">
+                @context.State
+            </PropertyColumn>
+            <PropertyColumn Title="Status" Property="c=>c.Status">
+                @context.Status
+            </PropertyColumn>
+            <PropertyColumn Title="Ports" Property="c=>c.Ports">
+                @{
+                    foreach (var port in context.Ports)
+                    {
+                        if (!string.IsNullOrEmpty(port.IP))
+                        {
+                            var url = port.IP + ":" + port.PublicPort;
+                            <a href="@url" target="_blank">@url</a> <br />
+
+                        }
+
+                    }
+                }
+            </PropertyColumn>
+            <ActionColumn Title="操作">
+                <Space>
+                    <SpaceItem>
+                        <Button @onclick="()=>onRestart(context.ID)">restart</Button>
+
+                    </SpaceItem>
+
+                    <SpaceItem>
+                        @if (context.State == "running")
+                        {
+                            <Button @onclick="()=>onStop(context.ID)">stop</Button>
+                        }
+                        else
+                        {
+                            <Button Danger @onclick="()=>onStart(context.ID)">start</Button>
+                        }
+                    </SpaceItem>
+                </Space>
+
+            </ActionColumn>
+        </ChildContent>
+        <PaginationTemplate>
+            <div style="margin:10px;">
+                <Pagination ShowTotal="showTotal" Total="total" PageSize="pageSize" OnChange="onPageChange" />
+            </div>
+        </PaginationTemplate>
+    </Table>
+
+
+    @RuntimeInformation.OSDescription
+}
+
+@code {
+    Func<PaginationTotalContext, string> showTotal = ctx => $"共 {ctx.Total} 条";
+
+    private int pageIndex = 1; //第几页
+    private int pageSize = 10;
+    private string searchKey { get; set; }
+    private int total { get; set; }
+
+    private IList<ContainerListResponse>? containers;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        await onSearch();
+    }
+
+    async Task onSearch()
+    {
+        containers = await dockerService.GetContainerListAsync();
+        total = containers.Count;
+
+        log.Info("containers:" + total);
+
+        StateHasChanged();
+    }
+
+    void onPageChange()
+    {
+
+    }
+
+    void onEdit(string id)
+    {
+
+    }
+
+    void onDelete(string id)
+    {
+
+    }
+
+    async void onRestart(string id)
+    {
+
+        using (new Handlers.MessageLoading(message))
+        {
+            log.Info(id);
+            await dockerService.Restart(id);
+
+            //reload
+            await onSearch();
+        }
+
+    }
+    async void onStop(string id)
+    {
+        using (new Handlers.MessageLoading(message))
+        {
+            log.Info(id);
+            await dockerService.dockerClient.Containers.StopContainerAsync(id, new ContainerStopParameters());
+
+            //reload
+
+            await onSearch(); 
+        }
+    }
+
+    async void onStart(string id)
+    {
+        using (new Handlers.MessageLoading(message))
+        {
+            log.Info(id);
+            await dockerService.dockerClient.Containers.StartContainerAsync(id, new ContainerStartParameters());
+
+            //reload
+
+            await onSearch();
+             
+        }
+
+    }
+
+
+}

@@ -1,0 +1,54 @@
+﻿@page "/containers/{ID}"
+@using Docker.DotNet.Models
+@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.WebUtilities
+@using System.Web
+
+
+
+@inject NavigationManager Nav;
+@inject Services.DockerService dockerService;
+
+@inject ILog log;
+
+<h3>Container @ID  @type</h3>
+
+
+
+@code {
+
+
+    [Parameter]
+    public String ID { get; set; }
+
+    public string? type { get; set; }
+    public string? Url { get; set; }
+
+    public ContainerInspectResponse detail;
+
+    protected override void OnInitialized()
+    {
+
+        Url = Nav.BaseUri;
+        // 获取Uri对象
+        var uri = Nav.ToAbsoluteUri(Nav.Uri);
+
+        // HttpUtility 获取参数值
+        type = HttpUtility.ParseQueryString(uri.Query).Get("type");
+
+        // QueryHelpers 获取参数值
+        //type = QueryHelpers.ParseQuery(uri.Query).GetValueOrDefault("type");
+
+        LoadData();
+
+
+    }
+
+    async void LoadData()
+    {
+        detail = await dockerService.dockerClient.Containers.InspectContainerAsync(ID);
+
+
+        log.Info("load data");
+    }
+}
