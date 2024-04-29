@@ -204,6 +204,10 @@ main[b-kx9r4z2gbb] {
 /* _content/Dboard/Components/Pages/Container.razor.rz.scp.css */
 body[b-hcun077327] {
 }
+
+button[b-hcun077327] {
+    border-radius: 0 !important;
+}
 /* _content/Dboard/Components/Pages/Containers.razor.rz.scp.css */
 
 body[b-omekypelli] {

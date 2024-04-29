@@ -11,10 +11,136 @@
 
 @inject ILog log;
 
-<h3>Container @ID  @type</h3>
+@if (detail != null)
+{
+    <h3>@detail.Name.Substring(1) Detail</h3>
+    <Card Title="Operations" Class="mb-4 Operations">
+        <Extra>
+            <Row>
+                <Button Disabled="@detail.State.Running">Start</Button>
+                <Button Disabled="@(!detail.State.Running)">Stop</Button>
+                <Button>Force Stop</Button>
+                <Button>Restart</Button>
+                <Button>Delete</Button>
+                <Button Class="last">Recreate</Button>
+                <span class="mx-2"></span>
+            </Row>
+        </Extra>
+        <Body>
+            <div class="d-flex flex-row gap-3 quick-operations">
+                <a href="containers/@detail.ID/logs" class="text-decoration-none"><Icon Type="file-exclamation" Theme="outline" /> Logs</a>
+                <a href="containers/@detail.ID/terminal" class="text-decoration-none"><Icon Type="code" Theme="outline" />Terminal</a>
+                <a href="containers/@detail.ID/inspect" class="text-decoration-none"><Icon Type="info-circle" Theme="outline" />Inspect</a>
+                <a href="containers/@detail.ID/stats" class="text-decoration-none"><Icon Type="bar-chart" Theme="outline" />Stats</a>
 
 
+            </div>
+        </Body>
+    </Card>
 
+    <Card Title="Container Status" Class="mb-4">
+        <GridRow Class="p-2  border-bottom">
+            <GridCol Class="col-2">ID</GridCol>
+            <GridCol>@detail.ID</GridCol>
+        </GridRow>
+        <GridRow Class="p-2  border-bottom">
+            <GridCol Class="col-2">Name</GridCol>
+            <GridCol>@detail.Name.Substring(1)</GridCol>
+        </GridRow>
+
+        <GridRow Class="p-2  border-bottom">
+            <GridCol Class="col-2">IP</GridCol>
+            <GridCol>@detail.NetworkSettings.IPAddress</GridCol>
+        </GridRow>
+        <GridRow Class="p-2  border-bottom">
+            <GridCol Class="col-2">Hostname</GridCol>
+            <GridCol>@detail.Config.Hostname</GridCol>
+        </GridRow>
+        <GridRow Class="p-2  border-bottom">
+            <GridCol Class="col-2">Ports</GridCol>
+            <GridCol>
+                @{
+                    foreach (var port in detail.NetworkSettings.Ports)
+                    {
+                        if (port.Value != null)
+                        {
+                            foreach (var item in port.Value)
+                            {
+                                @(item.HostIP + ":" + item.HostPort)
+                                <Icon Type="arrow-right" Class="mx-1"></Icon>
+                                @(port.Key)
+                            }
+                        }
+
+                    }
+                }
+            </GridCol>
+        </GridRow>
+        <GridRow Class="p-2  border-bottom">
+            <GridCol Class="col-2">Status</GridCol>
+            <GridCol><Tag Color="@(detail.State.Status=="running"?"success":"error")"> @detail.State.Status</Tag></GridCol>
+        </GridRow>
+        <GridRow Class="p-2  border-bottom">
+            <GridCol Class="col-2">Created Time</GridCol>
+            <GridCol>@detail.Created</GridCol>
+        </GridRow>
+        <GridRow Class="p-2  border-bottom">
+            <GridCol Class="col-2">Started Time</GridCol>
+            <GridCol>@detail.State.StartedAt</GridCol>
+        </GridRow>
+        <GridRow Class="p-2  border-bottom">
+            <GridCol Class="col-2">Image</GridCol>
+            <GridCol>@detail.Config.Image</GridCol>
+        </GridRow>
+        <GridRow Class="p-2  border-bottom">
+            <GridCol Class="col-2">Restart Policy</GridCol>
+            <GridCol>
+                <SimpleSelect DefaultValue="@detail.HostConfig.RestartPolicy.Name.ToString()" Style="width:120px;">
+                    <SelectOptions>
+                        <SimpleSelectOption Value="No" Label="No"></SimpleSelectOption>
+                        <SimpleSelectOption Value="OnFailure" Label="OnFailure"></SimpleSelectOption>
+                        <SimpleSelectOption Value="Always" Label="Always"></SimpleSelectOption>
+                        <SimpleSelectOption Value="UnlessStopped" Label="UnlessStopped"></SimpleSelectOption>
+                    </SelectOptions>
+                </SimpleSelect>
+            </GridCol>
+        </GridRow>
+        <GridRow Class="p-2  border-bottom">
+            <GridCol Class="col-2">Webhook</GridCol>
+            <GridCol><Switch></Switch></GridCol>
+        </GridRow>
+
+
+    </Card>
+
+    <Card Title="Mounts" Class="mb-4 Operations">
+        <GridRow Class="p-2  border-bottom">
+            <GridCol Class="col-8">Source</GridCol>
+            <GridCol>Destination</GridCol>
+        </GridRow>
+
+        @{
+            foreach (var item in detail.Mounts)
+            {
+                <GridRow Class="p-2  border-bottom">
+                    <GridCol Class="col-8">@item.Source</GridCol>
+                    <GridCol>@item.Destination</GridCol>
+                </GridRow>
+            }
+        }
+    </Card>
+
+    <Card Title="Env" Class="mb-4 Operations">
+        @{
+            foreach (var item in detail.Config.Env)
+            {
+                <GridRow Class="p-2  border-bottom">
+                    <GridCol Class="">@item</GridCol>
+                </GridRow>
+            }
+        }
+    </Card>
+}
 @code {
 
 
@@ -24,7 +150,7 @@
     public string? type { get; set; }
     public string? Url { get; set; }
 
-    public ContainerInspectResponse detail;
+    public ContainerInspectResponse detail = null;
 
     protected override void OnInitialized()
     {
@@ -48,7 +174,23 @@
     {
         detail = await dockerService.dockerClient.Containers.InspectContainerAsync(ID);
 
+        StateHasChanged();
 
-        log.Info("load data");
+        log.Info(detail.ToJson());
     }
 }
+
+<style>
+    .Operations .ant-btn {
+        border-radius: 0 !important;
+        border-right: 0 !important;
+    }
+
+        .Operations .ant-btn.last {
+            border-right: 1px solid #ccc !important;
+        }
+
+    .quick-operations a:hover {
+        color: #666;
+    }
+</style>

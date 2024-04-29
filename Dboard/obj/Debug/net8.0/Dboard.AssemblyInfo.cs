@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Dboard")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ac35596747161e87494d584cf18880731bf69fd9")]
 [assembly: System.Reflection.AssemblyProductAttribute("Dboard")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Dboard")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
