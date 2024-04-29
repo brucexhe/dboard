@@ -1,7 +1,0 @@
-D:\Projects\Dboard\Dboard\obj\Release\net8.0\linux-x64\PubTmp\Out\Dboard
-D:\Projects\Dboard\Dboard\obj\Release\net8.0\linux-x64\PubTmp\Out\appsettings.Development.json
-D:\Projects\Dboard\Dboard\obj\Release\net8.0\linux-x64\PubTmp\Out\appsettings.json
-D:\Projects\Dboard\Dboard\obj\Release\net8.0\linux-x64\PubTmp\Out\Dboard.dll
-D:\Projects\Dboard\Dboard\obj\Release\net8.0\linux-x64\PubTmp\Out\Dboard.deps.json
-D:\Projects\Dboard\Dboard\obj\Release\net8.0\linux-x64\PubTmp\Out\Dboard.runtimeconfig.json
-D:\Projects\Dboard\Dboard\obj\Release\net8.0\linux-x64\PubTmp\Out\Dboard.pdb
