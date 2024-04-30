@@ -39,8 +39,8 @@ namespace Dboard
 
             string connectingStr = builder.Configuration.GetConnectionString("sqlite");
             builder.Services.AddSqlite<SqliteDbContext>(connectingStr);
-            //builder.Services.AddDbContext<SqliteDbContext>();
 
+            builder.Services.AddControllers();
 
             var app = builder.Build();
 
@@ -56,8 +56,15 @@ namespace Dboard
             app.MapRazorComponents<App>()
                 .AddInteractiveServerRenderMode();
 
+            app.MapControllers();
+
+            app.UseRouting();
+
+
+            app.UseAntiforgery();
 
             log.Info("app started.");
+            
 
             app.Run();
 
