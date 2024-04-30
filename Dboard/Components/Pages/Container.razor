@@ -28,10 +28,10 @@
         </Extra>
         <Body>
             <div class="d-flex flex-row gap-3 quick-operations">
-                <a href="containers/@detail.ID/logs" class="text-decoration-none"><Icon Type="file-exclamation" Theme="outline" /> Logs</a>
-                <a href="containers/@detail.ID/terminal" class="text-decoration-none"><Icon Type="code" Theme="outline" />Terminal</a>
-                <a href="containers/@detail.ID/inspect" class="text-decoration-none"><Icon Type="info-circle" Theme="outline" />Inspect</a>
-                <a href="containers/@detail.ID/stats" class="text-decoration-none"><Icon Type="bar-chart" Theme="outline" />Stats</a>
+                <a href="containers/@detail.ID/logs" class="text-decoration-none"><Icon Type="file-exclamation" Theme="outline" Class="mx-0" /> Logs</a>
+                <a href="containers/@detail.ID/terminal" class="text-decoration-none"><Icon Type="code" Theme="outline" Class="mx-1" />Terminal</a>
+                <a href="containers/@detail.ID/inspect" class="text-decoration-none"><Icon Type="info-circle" Theme="outline" Class="mx-1" />Inspect</a>
+                <a href="containers/@detail.ID/stats" class="text-decoration-none"><Icon Type="bar-chart" Theme="outline" Class="mx-1" />Stats</a>
 
 
             </div>
@@ -82,7 +82,7 @@
         </GridRow>
         <GridRow Class="p-2  border-bottom">
             <GridCol Class="col-2">Created Time</GridCol>
-            <GridCol>@detail.Created</GridCol>
+            <GridCol>@detail.Created.ToString("yyyy-MM-dd HH:mm:ss")</GridCol>
         </GridRow>
         <GridRow Class="p-2  border-bottom">
             <GridCol Class="col-2">Started Time</GridCol>

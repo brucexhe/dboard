@@ -1,6 +1,104 @@
 ﻿@page "/images"
+@using Docker.DotNet.Models
+
+@inject ILog log
+@inject IMessageService message;
+@inject Services.DockerService dockerService;
+
+
 <h3>Images</h3>
 
-@code {
 
+@if (images == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <Table TItem="ImagesListResponse" DataSource="@images">
+        <TitleTemplate>
+            <GridRow Gutter="10">
+                <GridCol Span="3">
+                    <Input @bind-Value="searchKey" Placeholder="搜索关键字" OnSearch="onSearch" />
+                </GridCol>
+                <GridCol>
+                    <Button Type="primary">查询</Button>
+                </GridCol>
+                <GridCol>
+                    <Button Type="primary">新增</Button>
+                </GridCol>
+            </GridRow>
+        </TitleTemplate>
+
+        <ChildContent>
+            <PropertyColumn Title="Name" Property="c=>c.ID">
+            </PropertyColumn>
+            <PropertyColumn Title="Image" Property="c=>c.RepoTags">
+                @{
+                    foreach (var item in context.RepoTags)
+                    {
+                        <Tag Color="#55acee" Style="border-radius:10px;">@item</Tag>
+                    }
+                }
+            </PropertyColumn>
+            <PropertyColumn Title="Size" Property="c=>c.Size">
+                @(context.Size / 1024 / 1024) M
+            </PropertyColumn>
+            <PropertyColumn Title="Created" Property="c=>c.Created">
+                @context.Created.ToString("yyyy-MM-dd HH:mm:ss")
+            </PropertyColumn>
+
+            <ActionColumn Title="操作">
+                <Space>
+                    <SpaceItem>
+                        <Button Size="small" @onclick="()=>onDelete(context.ID)">Delete</Button>
+                    </SpaceItem>
+                </Space>
+
+            </ActionColumn>
+        </ChildContent>
+        <PaginationTemplate>
+            <div style="margin:10px;">
+                <Pagination ShowTotal="showTotal" Total="total" PageSize="pageSize" OnChange="onPageChange" />
+            </div>
+        </PaginationTemplate>
+    </Table>
+
+}
+
+@code {
+    Func<PaginationTotalContext, string> showTotal = ctx => $"共 {ctx.Total} 条";
+
+    private int pageIndex = 1; //第几页
+    private int pageSize = 10;
+    private string searchKey = "";
+
+    private int total { get; set; }
+
+    private IList<ImagesListResponse>? images;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        await onSearch();
+    }
+
+    async Task onSearch()
+    {
+        images = await dockerService.dockerClient.Images.ListImagesAsync(new Docker.DotNet.Models.ImagesListParameters());
+        total = images.Count;
+
+        log.Info("images:" + images.ToJson());
+
+        StateHasChanged();
+    }
+
+    void onPageChange()
+    {
+
+    }
+    void onDelete(string ID)
+    {
+
+    }
 }

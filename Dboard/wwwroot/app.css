@@ -49,3 +49,17 @@ h1:focus {
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
 }
+
+
+.ant-table-thead > tr > th, .ant-table tfoot > tr > th {
+    padding: 8px !important;
+    border-top:1px solid #eee;
+}
+
+.ant-table-tbody > tr > td, .ant-table tfoot > tr > td {
+    padding: 8px !important;
+}
+
+.ant-table-thead > tr > th:not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not([colspan])::before {
+    height: 2.6em !important;
+}

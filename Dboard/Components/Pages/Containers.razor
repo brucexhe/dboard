@@ -45,7 +45,7 @@ else
                 @(context.Image.Contains(":") ? context.Image.Split(":").LastOrDefault() : "latest")
             </PropertyColumn>
             <PropertyColumn Title="Created" Property="c=>c.Created">
-                @context.Created
+                @context.Created.ToString("yyyy-MM-dd HH:mm:ss")
             </PropertyColumn>
             <PropertyColumn Title="State" Property="c=>c.State">
                 @context.State
@@ -70,18 +70,18 @@ else
             <ActionColumn Title="操作">
                 <Space>
                     <SpaceItem>
-                        <Button @onclick="()=>onRestart(context.ID)">restart</Button>
+                        <Button Size="small" @onclick="()=>onRestart(context.ID)">restart</Button>
 
                     </SpaceItem>
 
                     <SpaceItem>
                         @if (context.State == "running")
                         {
-                            <Button @onclick="()=>onStop(context.ID)">stop</Button>
+                            <Button Size="small" @onclick="()=>onStop(context.ID)">stop</Button>
                         }
                         else
                         {
-                            <Button Danger @onclick="()=>onStart(context.ID)">start</Button>
+                            <Button Size="small"  Danger @onclick="()=>onStart(context.ID)">start</Button>
                         }
                     </SpaceItem>
                 </Space>
