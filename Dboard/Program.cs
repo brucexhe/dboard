@@ -5,6 +5,7 @@ using log4net;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System.Configuration;
+using System.Reflection;
 
 namespace Dboard
 {
@@ -42,6 +43,8 @@ namespace Dboard
 
             builder.Services.AddControllers();
 
+            builder.Services.AddAutowired(Assembly.Load("Dboard"));
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -64,7 +67,7 @@ namespace Dboard
             app.UseAntiforgery();
 
             log.Info("app started.");
-            
+
 
             app.Run();
 

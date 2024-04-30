@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AntDesign;
+using Dboard.Db;
+using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -8,35 +10,29 @@ namespace Dboard.Api
     [ApiController]
     public class WebhookController : ControllerBase
     {
-        // GET: api/<WebhookController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
+
+        [Autowired]
+        public SqliteDbContext db;
 
         // GET api/<WebhookController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public R Get(string id)
         {
-            return "value";
+            var data = db.Webhooks.FirstOrDefault(f => f.Id == id);
+
+            return R.Success(data);
         }
 
-        // POST api/<WebhookController>
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT api/<WebhookController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        // POST api/webhook/add
+        [HttpPost("/add")]
+        public void Add([FromBody] Webhook value)
         {
         }
 
-        // DELETE api/<WebhookController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+
+        // DELETE api/webhook/delete/5
+        [HttpGet("/delete/{id}")]
+        public void Delete(string id)
         {
         }
     }
