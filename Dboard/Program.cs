@@ -1,5 +1,6 @@
 using Dboard.Components;
 using Dboard.Db;
+using Dboard.Handlers;
 using Dboard.Services;
 using log4net;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,12 +39,20 @@ namespace Dboard
             });
             builder.Services.AddScoped(typeof(LogService<>));
 
+            //增加数据库
             string connectingStr = builder.Configuration.GetConnectionString("sqlite");
             builder.Services.AddSqlite<SqliteDbContext>(connectingStr);
 
-            builder.Services.AddControllers();
 
-            builder.Services.AddAutowired(Assembly.Load("Dboard"));
+            //格式化JSON
+            builder.Services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.WriteIndented = true;
+                options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+                options.JsonSerializerOptions.Converters.Add(new DateTimeJsonConverter("yyyy-MM-dd HH:mm:ss"));
+            });
+
+
 
             var app = builder.Build();
 

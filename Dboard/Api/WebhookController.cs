@@ -1,4 +1,4 @@
-﻿using AntDesign;
+﻿using AntDesign; 
 using Dboard.Db;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,11 +8,12 @@ namespace Dboard.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class WebhookController : ControllerBase
+    public class WebhookController : BaseController
     {
+        public WebhookController(SqliteDbContext dbContext) : base(dbContext)
+        {
+        }
 
-        [Autowired]
-        public SqliteDbContext db;
 
         // GET api/<WebhookController>/5
         [HttpGet("{id}")]
