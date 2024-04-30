@@ -13,8 +13,19 @@
     <PackageReference Include="AntDesign" Version="0.18.3" />
     <PackageReference Include="Docker.DotNet" Version="3.125.15" />
     <PackageReference Include="log4net" Version="2.0.17" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.4" />
     <PackageReference Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" Version="8.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Api\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="data.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

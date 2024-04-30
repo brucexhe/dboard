@@ -1,6 +1,10 @@
 using Dboard.Components;
+using Dboard.Db;
 using Dboard.Services;
 using log4net;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using System.Configuration;
 
 namespace Dboard
 {
@@ -31,8 +35,12 @@ namespace Dboard
                 // 使用当前的类型作为日志记录器的名称
                 return LogManager.GetLogger("");
             });
-
             builder.Services.AddScoped(typeof(LogService<>));
+
+            string connectingStr = builder.Configuration.GetConnectionString("sqlite");
+            builder.Services.AddSqlite<SqliteDbContext>(connectingStr);
+            //builder.Services.AddDbContext<SqliteDbContext>();
+
 
             var app = builder.Build();
 
