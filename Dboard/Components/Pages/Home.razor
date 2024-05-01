@@ -8,15 +8,31 @@
 
 <h1>Hello, world!</h1>
 
+@{
+    foreach (var item in users)
+    {
+        <D>name: @item.Name</D>
+    }
+}
+
 Welcome to your new app.
 @code {
+    public List<User> users = new List<User>();
 
     protected override async Task OnInitializedAsync()
     {
         log.Info("home page loaded.");
 
-        var users = db.Users.ToList();
+
+        loadData();
+    }
+
+    void loadData()
+    {
+
+        users = db.Users.ToList();
 
         log.Info(users.ToJson());
+
     }
 }

@@ -8,8 +8,9 @@
 @inject SqliteDbContext db;
 @inject NavigationManager Nav;
 @inject Services.DockerService dockerService;
-
+@inject JSRuntime JS;
 @inject ILog log;
+@inject IMessageService message;
 
 @if (detail != null)
 {
@@ -107,8 +108,26 @@
         </GridRow>
         <GridRow Class="p-2  border-bottom">
             <GridCol Class="col-2">Webhook</GridCol>
-            <GridCol><Switch></Switch></GridCol>
+            <GridCol>
+                <Switch CheckedChanged="()=>changeWebhookStatus()" Checked="@(webhookStatus)"></Switch>
+
+            </GridCol>
         </GridRow>
+
+        @if (webhookStatus)
+        {
+            <GridRow Class="p-2  border-bottom">
+                <GridCol Class="col-2">Webhook Url</GridCol>
+                <GridCol>
+                    @{
+                        var triggerUrl = Nav.BaseUri + "api/webhook/trigger?token=" + (webhook != null ? webhook.ContainerName.GetMD5() : "");
+                    }
+                    @(triggerUrl)
+
+                    <Icon Type="copy" Style="" @onclick="()=>onCopy(triggerUrl)"></Icon>
+                </GridCol>
+            </GridRow>
+        }
 
 
     </Card>
@@ -141,6 +160,11 @@
         }
     </Card>
 }
+else
+{
+    <div>Loading...</div>
+}
+
 @code {
 
 
@@ -152,7 +176,11 @@
 
     public ContainerInspectResponse detail = null;
 
-    protected override void OnInitialized()
+    public Webhook webhook = null;
+
+    public bool webhookStatus = false;
+
+    protected override async Task OnInitializedAsync()
     {
 
         Url = Nav.BaseUri;
@@ -165,20 +193,55 @@
         // QueryHelpers 获取参数值
         //type = QueryHelpers.ParseQuery(uri.Query).GetValueOrDefault("type");
 
-        LoadData();
+        await LoadData();
 
 
+    //
     }
 
-    async void LoadData()
+
+    async Task LoadData()
     {
         detail = await dockerService.dockerClient.Containers.InspectContainerAsync(ID);
 
-        StateHasChanged();
 
-        log.Info(detail.ToJson());
+        if (detail != null)
+        {
+            webhook = db.Webhooks.FirstOrDefault(f => f.ContainerName == detail.Name.Substring(1));
+
+            log.Info(webhook?.ToJson());
+            if (webhook != null)
+            {
+                webhookStatus = true;
+            }
+        }
+
+    }
+
+    void changeWebhookStatus()
+    {
+        log.Info("changeWebhookStatus...");
+        // if (webhook != null)
+        // {
+        //     webhook = null;
+        // }
+        // else
+        // {
+        //     webhook = db.Webhooks.FirstOrDefault(f => f.ContainerName == detail.Name.Substring(1));
+        // }
+    }
+
+    async Task onCopy(string triggerUrl)
+    {
+        await JS.InvokeVoidAsync("navigator.clipboard.writeText", triggerUrl);
+
+        message.Info("copied");
+
     }
 }
+<script>
+    
+</script>
 
 <style>
     .Operations .ant-btn {
