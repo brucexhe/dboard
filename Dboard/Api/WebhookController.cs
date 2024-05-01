@@ -24,15 +24,24 @@ namespace Dboard.Api
             return R.Success(data);
         }
 
+        // GET api/<WebhookController>/trigger?token=123
+        [HttpGet("trigger")]
+        public R Trigger(string token)
+        {
+            var data = db.Webhooks.FirstOrDefault(f => f.Token == token);
+
+            return R.Success(data);
+        }
+
         // POST api/webhook/add
-        [HttpPost("/add")]
+        [HttpPost("add")]
         public void Add([FromBody] Webhook value)
         {
         }
 
 
         // DELETE api/webhook/delete/5
-        [HttpGet("/delete/{id}")]
+        [HttpGet("delete/{id}")]
         public void Delete(string id)
         {
         }
