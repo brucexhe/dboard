@@ -246,7 +246,11 @@ else
     {
         using (new MessageLoading(message))
         {
-            await dockerService.ReDeploy(detail.ID);
+            var id = await dockerService.ReDeploy(detail.ID);
+            if (!string.IsNullOrEmpty(id))
+            {
+                Nav.NavigateTo("/containers/" + id, true);
+            }
 
         }
     }

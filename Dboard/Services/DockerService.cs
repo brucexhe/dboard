@@ -53,14 +53,14 @@ namespace Dboard.Services
             ReDeploy(oldContainer.ID);
         }
 
-        public async Task ReDeploy(string ID)
+        public async Task<string> ReDeploy(string ID)
         {
 
             var oldContainerInfo = await dockerClient.Containers.InspectContainerAsync(ID);
             if (oldContainerInfo == null)
             {
                 log.Error("container not found.");
-                return;
+                return null;
             }
 
             //停止旧窗口
@@ -76,9 +76,12 @@ namespace Dboard.Services
             await pullImage(oldContainerInfo.Config.Image);
 
             //发布新容器 
-            await dockerClient.Containers.CreateContainerAsync(new CreateContainerParameters(oldContainerInfo.Config));
+            CreateContainerResponse newContainer = await dockerClient.Containers.CreateContainerAsync(new CreateContainerParameters(oldContainerInfo.Config));
 
-            
+            //启动
+            await dockerClient.Containers.StartContainerAsync(newContainer.ID, new ContainerStartParameters());
+
+            return newContainer.ID;
         }
 
         public Task pullImage(string imageName, string tag = "latest")
