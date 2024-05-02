@@ -1,5 +1,6 @@
 ﻿using AntDesign; 
 using Dboard.Db;
+using Dboard.Services;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -10,6 +11,9 @@ namespace Dboard.Api
     [ApiController]
     public class WebhookController : BaseController
     {
+
+        DockerService dockerService = new DockerService();
+
         public WebhookController(SqliteDbContext dbContext) : base(dbContext)
         {
         }
@@ -29,6 +33,13 @@ namespace Dboard.Api
         public R Trigger(string token)
         {
             var data = db.Webhooks.FirstOrDefault(f => f.Token == token);
+
+            if (data == null)
+            {
+                return R.Error("webhook not found.");
+            }
+
+            dockerService.ReDeployByName(data.ContainerName);
 
             return R.Success(data);
         }

@@ -22,10 +22,10 @@ else
                     <Input @bind-Value="searchKey" Placeholder="搜索关键字" OnSearch="onSearch" />
                 </GridCol>
                 <GridCol>
-                    <Button Type="primary">查询</Button>
+                    <Button Type="primary" @onclick="()=>onSearch()">查询</Button>
                 </GridCol>
                 <GridCol>
-                    <Button Type="primary">新增</Button>
+                    <Button Type="primary" @onclick="()=>onNew()">新增</Button>
                 </GridCol>
             </GridRow>
         </TitleTemplate>
@@ -51,7 +51,10 @@ else
             <ActionColumn Title="操作">
                 <Space>
                     <SpaceItem>
-                        <Button Size="small" @onclick="()=>onDelete(context.ID)">Delete</Button>
+                        <Popconfirm Title="Are you sure delete this image?"
+                                    OnConfirm="()=>onDelete(context.ID)">
+                            <Button Size="small">Delete</Button>
+                        </Popconfirm>
                     </SpaceItem>
                 </Space>
 
@@ -66,8 +69,25 @@ else
 
 }
 
+
+
+<Modal Title="New Image" @bind-Visible="pullPopup" OnOk="()=>onPull()" OkText="pullText">
+    <GridRow Class="mb-2">
+        <GridCol Class="col-2">Image</GridCol>
+        <GridCol><Input TValue="string" @bind-Value="imageName"></Input></GridCol>
+    </GridRow>
+    <GridRow Class="mb-2">
+        <GridCol Class="col-2">Tag</GridCol>
+        <GridCol><Input TValue="string" @bind-Value="imageTag"></Input></GridCol>
+    </GridRow>
+
+</Modal>
+
 @code {
     Func<PaginationTotalContext, string> showTotal = ctx => $"共 {ctx.Total} 条";
+
+    private string pullText = "Pull";
+    private bool pullPopup = false;
 
     private int pageIndex = 1; //第几页
     private int pageSize = 10;
@@ -76,6 +96,9 @@ else
     private int total { get; set; }
 
     private IList<ImagesListResponse>? images;
+
+    private string imageName = "";
+    private string imageTag = "latest";
 
     protected override async Task OnInitializedAsync()
     {
@@ -88,17 +111,70 @@ else
         images = await dockerService.dockerClient.Images.ListImagesAsync(new Docker.DotNet.Models.ImagesListParameters());
         total = images.Count;
 
-        log.Info("images:" + images.ToJson());
-
         StateHasChanged();
+    }
+
+    void onClose()
+    {
+        log.Info("onclose...");
+        pullPopup = false;
+    }
+
+    async void onPull()
+    {
+        log.Info("start pull " + imageName);
+
+
+        try
+        {
+            await message.Loading("loading...", 0);
+
+            await dockerService.pullImage(imageName, imageTag);
+
+            pullPopup = false;
+            message.Destroy();
+
+            await onSearch();
+
+            await message.Success("success");
+
+        }
+        catch (Exception ex)
+        {
+            message.Error(ex.Message);
+        }
+
+
     }
 
     void onPageChange()
     {
 
     }
-    void onDelete(string ID)
+    async void onDelete(string ID)
     {
 
+
+        using (new MessageLoading(message))
+        {
+            try
+            {
+                await dockerService.Delete(ID);
+
+
+                await onSearch();
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex);
+                message.Error(ex.Message);
+            }
+
+        }
+
+    }
+    void onNew()
+    {
+        pullPopup = true;
     }
 }

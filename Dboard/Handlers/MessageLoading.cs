@@ -5,18 +5,18 @@ using System.ComponentModel;
 
 namespace Dboard.Handlers
 {
-    public class MessageLoading : IDisposable 
+    public class MessageLoading : IDisposable
     {
         public event PropertyChangedEventHandler? PropertyChanged;
         private IMessageService _message;
         private bool disposed = false;
 
         public MessageLoading(IMessageService message)
-        { 
+        {
             this._message = message;
-            message.Loading("loading...");
+            message.Loading("loading...", 0);
         }
-         
+
 
         public void Dispose()
         {

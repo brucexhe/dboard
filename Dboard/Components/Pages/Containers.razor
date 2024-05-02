@@ -48,7 +48,7 @@ else
                 @context.Created.ToString("yyyy-MM-dd HH:mm:ss")
             </PropertyColumn>
             <PropertyColumn Title="State" Property="c=>c.State">
-                @context.State
+                <Tag Color="@(context.State=="running"?"success":"error")">@context.State</Tag>
             </PropertyColumn>
             <PropertyColumn Title="Status" Property="c=>c.Status">
                 @context.Status
@@ -70,20 +70,30 @@ else
             <ActionColumn Title="操作">
                 <Space>
                     <SpaceItem>
-                        <Button Size="small" @onclick="()=>onRestart(context.ID)">restart</Button>
-
-                    </SpaceItem>
-
-                    <SpaceItem>
                         @if (context.State == "running")
                         {
                             <Button Size="small" @onclick="()=>onStop(context.ID)">stop</Button>
                         }
                         else
                         {
-                            <Button Size="small"  Danger @onclick="()=>onStart(context.ID)">start</Button>
+                            <Button Size="small" Danger @onclick="()=>onStart(context.ID)">start</Button>
                         }
                     </SpaceItem>
+
+                    <SpaceItem>
+                        <Button Size="small" @onclick="()=>onRestart(context.ID)">restart</Button>
+                    </SpaceItem>
+                    <SpaceItem>
+                        <Button Size="small" @onclick="()=>onReDeploy(context.ID)">redeploy</Button>
+                    </SpaceItem>
+
+                    <SpaceItem>
+                        <Button Size="small" @onclick="()=>onEdit(context.ID)">edit</Button>
+                    </SpaceItem>
+                    <SpaceItem>
+                        <Button Size="small" @onclick="()=>onDelete(context.ID)">delete</Button>
+                    </SpaceItem>
+
                 </Space>
 
             </ActionColumn>
@@ -130,6 +140,11 @@ else
 
     }
 
+    void onReDeploy(string ID)
+    {
+        
+    }
+
     void onEdit(string id)
     {
 
@@ -162,7 +177,7 @@ else
 
             //reload
 
-            await onSearch(); 
+            await onSearch();
         }
     }
 
@@ -176,7 +191,7 @@ else
             //reload
 
             await onSearch();
-             
+
         }
 
     }

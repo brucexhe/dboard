@@ -4,6 +4,16 @@ html, body {
 
 a, .btn-link {
     color: #006bb7;
+    text-decoration: none;
+}
+
+    a:hover, .btn-link:hover {
+        color: #006bb7;
+        text-decoration: underline;
+    }
+
+a.nav-link {
+    text-decoration: none;
 }
 
 .btn-primary {
@@ -53,7 +63,7 @@ h1:focus {
 
 .ant-table-thead > tr > th, .ant-table tfoot > tr > th {
     padding: 8px !important;
-    border-top:1px solid #eee;
+    border-top: 1px solid #eee;
 }
 
 .ant-table-tbody > tr > td, .ant-table tfoot > tr > td {

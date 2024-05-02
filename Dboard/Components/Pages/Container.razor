@@ -1,4 +1,5 @@
 ﻿@page "/containers/{ID}"
+@using Dboard.Api
 @using Docker.DotNet.Models
 @using Microsoft.AspNetCore.Http
 @using Microsoft.AspNetCore.WebUtilities
@@ -11,6 +12,8 @@
 @inject IJSRuntime JS;
 @inject ILog log;
 @inject IMessageService message;
+@inject WebhookController webhookApi;
+
 
 @if (detail != null)
 {
@@ -23,7 +26,7 @@
                 <Button>Force Stop</Button>
                 <Button>Restart</Button>
                 <Button>Delete</Button>
-                <Button Class="last">Recreate</Button>
+                <Button Class="last" @onclick="()=>onReDeploy()">ReDeploy</Button>
                 <span class="mx-2"></span>
             </Row>
         </Extra>
@@ -196,7 +199,7 @@ else
         await LoadData();
 
 
-    //
+        //
     }
 
 
@@ -238,19 +241,26 @@ else
         message.Info("copied");
 
     }
+
+    async void onReDeploy()
+    {
+        using (new MessageLoading(message))
+        {
+            await dockerService.ReDeploy(detail.ID);
+
+        }
+    }
 }
 <script>
-    
+
 </script>
 
 <style>
     .Operations .ant-btn {
         border-radius: 0 !important;
-        border-right: 0 !important;
     }
 
         .Operations .ant-btn.last {
-            border-right: 1px solid #ccc !important;
         }
 
     .quick-operations a:hover {

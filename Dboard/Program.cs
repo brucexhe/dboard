@@ -45,7 +45,7 @@ namespace Dboard
 
 
             //¸ñÊ½»¯JSON
-            builder.Services.AddControllers().AddJsonOptions(options =>
+            builder.Services.AddControllers().AddControllersAsServices().AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.WriteIndented = true;
                 options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
