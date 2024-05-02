@@ -37,6 +37,7 @@ namespace Dboard.Api
         [HttpPost("add")]
         public void Add([FromBody] Webhook value)
         {
+
         }
 
 
@@ -44,6 +45,7 @@ namespace Dboard.Api
         [HttpGet("delete/{id}")]
         public void Delete(string id)
         {
+
         }
     }
 }
