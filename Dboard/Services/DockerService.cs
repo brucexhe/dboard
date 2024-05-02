@@ -76,7 +76,7 @@ namespace Dboard.Services
             await pullImage(oldContainerInfo.Config.Image);
 
             //发布新容器 
-            CreateContainerResponse newContainer = await dockerClient.Containers.CreateContainerAsync(new CreateContainerParameters(oldContainerInfo.Config));
+            CreateContainerResponse newContainer = await dockerClient.Containers.CreateContainerAsync(new CreateContainerParameters(oldContainerInfo.Config) { Name = oldContainerInfo.Name });
 
             //启动
             await dockerClient.Containers.StartContainerAsync(newContainer.ID, new ContainerStartParameters());

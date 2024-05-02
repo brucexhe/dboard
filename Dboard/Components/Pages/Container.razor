@@ -112,7 +112,7 @@
         <GridRow Class="p-2  border-bottom">
             <GridCol Class="col-2">Webhook</GridCol>
             <GridCol>
-                <Switch CheckedChanged="()=>changeWebhookStatus()" Checked="@(webhookStatus)"></Switch>
+                <Switch OnChange="()=>changeWebhookStatus()" Checked="@(webhookStatus)"></Switch>
 
             </GridCol>
         </GridRow>
@@ -224,14 +224,25 @@ else
     void changeWebhookStatus()
     {
         log.Info("changeWebhookStatus...");
-        // if (webhook != null)
-        // {
-        //     webhook = null;
-        // }
-        // else
-        // {
-        //     webhook = db.Webhooks.FirstOrDefault(f => f.ContainerName == detail.Name.Substring(1));
-        // }
+        if (webhookStatus)
+        {
+            webhookStatus = false;
+            webhook = db.Webhooks.FirstOrDefault(f => f.ContainerName == detail.Name.Substring(1));
+            db.Webhooks.Remove(webhook);
+            db.SaveChanges();
+        }
+        else
+        {
+            webhook = new Webhook();
+            string id = detail.Name.Substring(1).GetMD5();
+            webhook.Id = Guid.NewGuid().ToString("N");
+            webhook.ContainerName = detail.Name.Substring(1);
+            webhook.Token = id;
+            webhook.CreateTime = DateTime.Now;
+            db.Webhooks.Add(webhook);
+            db.SaveChanges();
+            webhookStatus = true;
+        }
     }
 
     async Task onCopy(string triggerUrl)
