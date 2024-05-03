@@ -1,0 +1,177 @@
+﻿@page "/networks"
+
+@using Docker.DotNet.Models
+
+@inject ILog log
+@inject IMessageService message;
+@inject Services.DockerService dockerService;
+
+
+<h3>Networks</h3>
+
+
+@if (dataSource == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <Table TItem="NetworkResponse" DataSource="@dataSource">
+        <TitleTemplate>
+            <GridRow Gutter="10">
+                <GridCol Span="3">
+                    <Input @bind-Value="searchKey" Placeholder="搜索关键字" OnSearch="onSearch" />
+                </GridCol>
+                <GridCol>
+                    <Button Type="primary" @onclick="()=>onSearch()">查询</Button>
+                </GridCol>
+                <GridCol>
+                    <Button Type="primary" @onclick="()=>onNew()">新增</Button>
+                </GridCol>
+            </GridRow>
+        </TitleTemplate>
+
+        <ChildContent>
+            <PropertyColumn Title="Name" Property="c=>c.Name">
+            </PropertyColumn>
+
+            <PropertyColumn Title="Containers" Property="c=>c.Containers.Count"></PropertyColumn>
+            <PropertyColumn Title="Scope" Property="c=>c.Scope"></PropertyColumn>
+            <PropertyColumn Title="Labels" Property="c=>c.Labels">
+                @{
+                    foreach (var item in context.Labels)
+                    {
+                        @item.Key @item.Value
+                    }
+                }
+            </PropertyColumn>
+            <ActionColumn Title="操作">
+                <Space>
+                    <SpaceItem>
+                        <Popconfirm Title="Are you sure delete this network?"
+                                    OnConfirm="()=>onDelete(context.ID)">
+                            <Button Size="small">Delete</Button>
+                        </Popconfirm>
+                    </SpaceItem>
+                </Space>
+
+            </ActionColumn>
+        </ChildContent>
+        <PaginationTemplate>
+            <div style="margin:10px;">
+                <Pagination ShowTotal="showTotal" Total="total" PageSize="pageSize" OnChange="onPageChange" />
+            </div>
+        </PaginationTemplate>
+    </Table>
+
+}
+
+
+
+<Modal Title="New Image" @bind-Visible="pullPopup" OnOk="()=>onPull()" OkText="pullText">
+    <GridRow Class="mb-2">
+        <GridCol Class="col-2">Image</GridCol>
+        <GridCol><Input TValue="string" @bind-Value="imageName"></Input></GridCol>
+    </GridRow>
+    <GridRow Class="mb-2">
+        <GridCol Class="col-2">Tag</GridCol>
+        <GridCol><Input TValue="string" @bind-Value="imageTag"></Input></GridCol>
+    </GridRow>
+
+</Modal>
+
+@code {
+    Func<PaginationTotalContext, string> showTotal = ctx => $"共 {ctx.Total} 条";
+
+    private string pullText = "Pull";
+    private bool pullPopup = false;
+
+    private int pageIndex = 1; //第几页
+    private int pageSize = 10;
+    private string searchKey = "";
+
+    private int total { get; set; }
+
+    private IList<NetworkResponse>? dataSource;
+
+    private string imageName = "";
+    private string imageTag = "latest";
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        await onSearch();
+    }
+
+    async Task onSearch()
+    {
+        dataSource = await dockerService.dockerClient.Networks.ListNetworksAsync();
+        total = dataSource.Count;
+
+        StateHasChanged();
+    }
+
+    void onClose()
+    {
+        log.Info("onclose...");
+        pullPopup = false;
+    }
+
+    async void onPull()
+    {
+        log.Info("start pull " + imageName);
+
+
+        try
+        {
+            await message.Loading("loading...", 0);
+
+            await dockerService.pullImage(imageName, imageTag);
+
+            pullPopup = false;
+            message.Destroy();
+
+            await onSearch();
+
+            await message.Success("success");
+
+        }
+        catch (Exception ex)
+        {
+            message.Error(ex.Message);
+        }
+
+
+    }
+
+    void onPageChange()
+    {
+
+    }
+    async void onDelete(string ID)
+    {
+
+
+        using (new MessageLoading(message))
+        {
+            try
+            {
+                await dockerService.Delete(ID);
+
+
+                await onSearch();
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex);
+                message.Error(ex.Message);
+            }
+
+        }
+
+    }
+    void onNew()
+    {
+        pullPopup = true;
+    }
+}
