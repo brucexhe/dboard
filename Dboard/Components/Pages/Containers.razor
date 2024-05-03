@@ -91,7 +91,11 @@ else
                         <Button Size="small" @onclick="()=>onEdit(context.ID)">edit</Button>
                     </SpaceItem>
                     <SpaceItem>
-                        <Button Size="small" @onclick="()=>onDelete(context.ID)">delete</Button>
+
+                        <Popconfirm Title="Are you sure delete this container?"
+                                    OnConfirm="()=>onDelete(context.ID)">
+                            <Button Size="small">Delete</Button>
+                        </Popconfirm>
                     </SpaceItem>
 
                 </Space>
@@ -106,7 +110,6 @@ else
     </Table>
 
 
-    @RuntimeInformation.OSDescription
 }
 
 @code {
@@ -140,9 +143,19 @@ else
 
     }
 
-    void onReDeploy(string ID)
+    async void onReDeploy(string ID)
     {
-        
+
+        using (new MessageLoading(message))
+        {
+            var id = await dockerService.ReDeploy(ID);
+            if (!string.IsNullOrEmpty(id))
+            {
+                //reload
+                await onSearch();
+            }
+
+        }
     }
 
     void onEdit(string id)
