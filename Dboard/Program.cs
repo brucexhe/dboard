@@ -53,6 +53,10 @@ namespace Dboard
             });
 
 
+            builder.Services.AddServerSideBlazor(options =>
+            {
+                options.DetailedErrors = true;
+            });
 
             var app = builder.Build();
 

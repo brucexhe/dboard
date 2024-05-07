@@ -1,38 +1,132 @@
 ﻿@page "/"
+@using Docker.DotNet.Models
 @inject ILog log
 
-
+@inject DockerService dockerService
 @inject SqliteDbContext db
+@inject IJSRuntime JSRuntime;
+
+@implements IDisposable
+
 
 <PageTitle>Home</PageTitle>
 
 <h1>Hello, world!</h1>
 
+@EventsText
+
+Welcome to your new app.
+
 @{
-    foreach (var item in users)
+    foreach (var item in containerUsages)
     {
-        <D>name: @item.Name</D>
+        <div> @item.ToJson()  </div>
     }
 }
 
-Welcome to your new app.
 @code {
+    private string EventsText = "";
+
     public List<User> users = new List<User>();
+
+    public class ContainerUsage
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public double CpuUsage { get; set; }
+        public long MemoryUsage { get; set; }
+    }
+
+    private List<ContainerUsage> containerUsages = new List<ContainerUsage>();
+
 
     protected override async Task OnInitializedAsync()
     {
         log.Info("home page loaded.");
 
-
-        loadData();
     }
 
-    void loadData()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (firstRender)
+        {
+            var _dotNetReference = DotNetObjectReference.Create(this);
+            await JSRuntime.InvokeVoidAsync("setIntervalCall", _dotNetReference, 5000);
+        }
+        base.OnAfterRenderAsync(firstRender);
+    }
 
-        users = db.Users.ToList();
 
-        log.Info(users.ToJson());
+    public class StatsProgress : IProgress<ContainerStatsResponse>
+    {
+        public Home component;
+        public ContainerListResponse container;
+        public StatsProgress(Home _component, ContainerListResponse _container)
+        {
+            component = _component;
+            container = _container;
+        }
+
+        public void Report(ContainerStatsResponse value)
+        {
+            component.containerUsages.Add(new ContainerUsage() { Id = container.ID, Name = value.Name, CpuUsage = value.CPUStats.CPUUsage.TotalUsage, MemoryUsage = (long)value.MemoryStats.Usage });
+            component.StateHasChanged();
+        }
+    }
+
+
+    [JSInvokable]
+    public async void RefreshData()
+    {
+        log.Info("GetContainerUsageAsync");
+        var containers = await dockerService.dockerClient.Containers.ListContainersAsync(new ContainersListParameters
+            {
+                All = true
+            });
+
+        var containerUsages = new List<ContainerUsage>();
+
+        foreach (var container in containers)
+        {
+            try
+            {
+                await dockerService.dockerClient.Containers.GetContainerStatsAsync(container.ID, new ContainerStatsParameters(), new StatsProgress(this, container), new CancellationToken());
+
+
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex.ToJson());
+            }
+        }
+
+
+    }
+
+    public void Dispose()
+    {
+        log.Info("Dispose");
+
+        JSRuntime.InvokeVoidAsync("clearIntervalCall");
 
     }
 }
+
+}
+
+
+<script>
+    let intervalId = 0;
+    function clearIntervalCall() {
+        if (intervalId) {
+            clearInterval(intervalId);
+            intervalId = null;
+        }
+    }
+
+    function setIntervalCall(dotnetReference, interval) {
+        intervalId = setInterval(() => {
+            dotnetReference.invokeMethodAsync('RefreshData');
+        }, interval);
+    }
+</script>
